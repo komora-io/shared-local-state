@@ -1,0 +1,11 @@
+[package]
+name = "rezidentura"
+version = "0.1.0"
+edition = "2021"
+authors = ["Tyler Neely <t@jujit.su>"]
+description = "a simple thread registry for use in EBR and IO"
+license = "GPL-3.0"
+repository = "https://github.com/komora-io/rezidentura"
+documentation = "https://docs.rs/rezidentura/"
+
+[dependencies]
