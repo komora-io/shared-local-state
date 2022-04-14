@@ -1,11 +1,11 @@
 [package]
-name = "rezidentura"
+name = "shared-local-state"
 version = "0.1.0"
 edition = "2021"
 authors = ["Tyler Neely <t@jujit.su>"]
-description = "a simple thread registry for use in EBR and IO"
+description = "a simple shared local state registry for use in EBR, IO, etc..."
 license = "GPL-3.0"
-repository = "https://github.com/komora-io/rezidentura"
-documentation = "https://docs.rs/rezidentura/"
+repository = "https://github.com/komora-io/shared-local-state"
+documentation = "https://docs.rs/shared-local-state/"
 
 [dependencies]
