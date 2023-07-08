@@ -1,6 +1,6 @@
 [package]
 name = "shared-local-state"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Tyler Neely <t@jujit.su>"]
 description = "a simple shared local state registry for use in EBR, IO, etc..."
@@ -9,3 +9,4 @@ repository = "https://github.com/komora-io/shared-local-state"
 documentation = "https://docs.rs/shared-local-state/"
 
 [dependencies]
+parking_lot = "0.12.1"

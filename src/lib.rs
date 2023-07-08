@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 use std::sync::{
     atomic::{AtomicU64, Ordering},
-    Arc, Condvar, Mutex, RwLock,
+    Arc,
 };
+
+use parking_lot::{Condvar, Mutex, RwLock};
 
 type Id = u64;
 
@@ -109,11 +111,7 @@ impl<T> SharedLocalState<T> {
 
         let arc = Arc::new(state);
 
-        self.shared_state
-            .registry
-            .write()
-            .unwrap()
-            .insert(id, arc.clone());
+        self.shared_state.registry.write().insert(id, arc.clone());
 
         // Broadcast to waiters that a new handle exists.
         self.notify_all();
@@ -130,7 +128,7 @@ impl<T> SharedLocalState<T> {
     /// because the existence of a single [`SharedLocalState`]
     /// implies the existence of at least one shared state.
     pub fn len(&self) -> usize {
-        self.shared_state.registry.read().unwrap().len()
+        self.shared_state.registry.read().len()
     }
 
     /// Update the local shared state and notify any other threads
@@ -174,7 +172,7 @@ impl<T> SharedLocalState<T> {
         // it is important to acquire the cv's associated
         // mutex to linearize notifications with anyone
         // who may be waiting on an update in `get_or_wait`
-        drop(self.shared_state.mu.lock().unwrap());
+        drop(self.shared_state.mu.lock());
 
         self.shared_state.cv.notify_all();
     }
@@ -189,7 +187,7 @@ impl<T> SharedLocalState<T> {
     {
         // first try
         {
-            let registry = self.shared_state.registry.read().unwrap();
+            let registry = self.shared_state.registry.read();
 
             for state in registry.values() {
                 if let Some(r) = f(state) {
@@ -200,10 +198,10 @@ impl<T> SharedLocalState<T> {
 
         // now take out lock and do it again in a loop,
         // blocking on the condvar if nothing is found
-        let mut mu = self.shared_state.mu.lock().unwrap();
+        let mut mu = self.shared_state.mu.lock();
 
         loop {
-            let registry = self.shared_state.registry.read().unwrap();
+            let registry = self.shared_state.registry.read();
 
             for state in registry.values() {
                 if let Some(r) = f(state) {
@@ -213,7 +211,7 @@ impl<T> SharedLocalState<T> {
 
             drop(registry);
 
-            mu = self.shared_state.cv.wait(mu).unwrap();
+            self.shared_state.cv.wait(&mut mu);
         }
     }
 
@@ -222,7 +220,7 @@ impl<T> SharedLocalState<T> {
     where
         F: FnMut(B, &T) -> B,
     {
-        let registry = self.shared_state.registry.read().unwrap();
+        let registry = self.shared_state.registry.read();
         registry.values().map(|v| &**v).fold(init, f)
     }
 
@@ -232,7 +230,7 @@ impl<T> SharedLocalState<T> {
         F: FnMut(&T) -> B,
         R: FromIterator<B>,
     {
-        let registry = self.shared_state.registry.read().unwrap();
+        let registry = self.shared_state.registry.read();
         registry.values().map(|v| f(v)).collect()
     }
 
@@ -242,7 +240,7 @@ impl<T> SharedLocalState<T> {
         F: FnMut(&T) -> Option<B>,
         R: FromIterator<B>,
     {
-        let registry = self.shared_state.registry.read().unwrap();
+        let registry = self.shared_state.registry.read();
         registry.values().filter_map(|v| f(v)).collect()
     }
 }
