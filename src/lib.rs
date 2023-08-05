@@ -62,7 +62,7 @@ pub struct SharedLocalState<T> {
 
 impl<T> Drop for SharedLocalState<T> {
     fn drop(&mut self) {
-        let mut registry = self.shared_state.registry.write().unwrap();
+        let mut registry = self.shared_state.registry.write();
         registry
             .remove(&self.id)
             .expect("must be able to remove registry's shared state on drop");
