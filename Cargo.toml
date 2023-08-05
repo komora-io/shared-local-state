@@ -1,10 +1,10 @@
 [package]
 name = "shared-local-state"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Tyler Neely <t@jujit.su>"]
 description = "a simple shared local state registry for use in EBR, IO, etc..."
-license = "MIT/Apache-2.0"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/komora-io/shared-local-state"
 documentation = "https://docs.rs/shared-local-state/"
 
